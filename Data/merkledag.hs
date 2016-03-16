@@ -2,18 +2,22 @@ import Data.Attoparsec.ByteString as A
 import qualified Data.ByteString.Char8 as B
 import Data.Word
 import qualified Data.Map.Strict as M 
-
+import Multihash
 
 
 -- This represents the IPFS world
-type IPFS_Simple = M.Map B.ByteString MDagNode
+type IPFS_Simple = M.Map Multihash MDagNode
 
 -- Note, you will never have two @links in the same level, 
 -- since all nodes are deterministic as per the spec
+
+-- type MDagData  = MDagNode | MDagLink
+
 data MDagNode = MDagNode {
-	n_hash :: B.ByteString,
+	n_hash :: Multihash,
 	n_vals :: M.Map B.ByteString MDagNode
 } deriving (Show)
+
 
 
 ----- Basic Interface -----
@@ -37,7 +41,8 @@ resolve_link w n (b:bs) = case M.lookup b (n_vals n) of
 
 
 
-follow_link :: IPFS_Simple -> B.ByteString -> Maybe MDagNode
+-- Looks up a hash. 
+follow_link :: IPFS_Simple -> Multihash -> Maybe MDagNode
 follow_link t b = M.lookup b t 
 
 
