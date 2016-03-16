@@ -49,10 +49,7 @@ resolve_in_node w s b = case s of
 	SubVal _ -> Just s 
 	SubMap m -> case M.lookup (head b) m of 
 		Just subob -> resolve_in_node w subob (tail b) 
-		Nothing -> case M.lookup "@link" node_map of 
-			Nothing -> Nothing 
-			Just l -> case l of 
-				SubVal link -> case 
+		Nothing -> resolve_link w s (tail b)
 			
 
 resolve_link :: IPFS_Simple -> SubOb -> [B.ByteString] -> Maybe SubOb
@@ -66,21 +63,6 @@ resolve_link w s b = case s of
 						Just node' -> traverse w node' (tail b)
 						Nothing -> Nothing
 	
-
-{-
-resolve_link w n [b] = M.lookup b (n_vals n) -- last one won't be link
-resolve_link w n (b:bs) = case M.lookup b (n_vals n) of	
-	Just n' -> resolve_link w n' bs -- it's not a link
-	Nothing -> case M.lookup "@link" (nvals n) of  -- it is a link! look for an @link
-		Just l -> 
-
-follow_link w b of 
-		Nothing -> Nothing -- Hash doesn't exist! 
-		Just new_node -> resolve_link w new_node bs
--}
-
-
-
 -- Looks up a hash. 
 follow_link :: IPFS_Simple -> B.ByteString -> Maybe MDagNode
 follow_link w b = case to_multihash b of 
