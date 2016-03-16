@@ -33,6 +33,13 @@ decode b = case parseOnly parse_multihash b of
 		dmh = a {h_length = digest_length} where
 		digest_length = B.length $ digest a 
 
+decode_b:: B.ByteString -> Maybe DecodedMultihash 
+decode_b b = case parseOnly parse_multihash b of 
+	Left _-> Nothing 
+	Right a -> Just dmh where
+		dmh = a {h_length = digest_length} where
+		digest_length = B.length $ digest a 
+
 
 parse_multihash :: Parser DecodedMultihash
 parse_multihash = do b_code <- A.anyWord8 
@@ -40,12 +47,16 @@ parse_multihash = do b_code <- A.anyWord8
                      b_digest <- A.takeByteString
                      return (DecodedMultihash {code=(fromIntegral b_code), name=(get_hash_string b_code), h_length=0, digest=b_digest})
 
-digest_eq :: Multihash -> Multihash -> Bool
-digest_eq m1 m2 = case decode m1 of 
-	Just dm1 -> case decode m2 of
-		Just dm2 -> (digest dm1) == (digest dm2)
-		Nothing -> False
-	Nothing -> False
+is_multihash :: B.ByteString -> Bool
+is_multihash b = case decode_b b of 
+	Just _ -> True
+	Nothing -> False 
+
+to_multihash :: B.ByteString -> Maybe Multihash
+to_multihash b = let mdm = decode_b b 
+                 in case mdm of 
+					Just dm -> Just $ encode (digest dm) (name dm)
+					Nothing -> Nothing
 
 get_hash_string :: Word8 -> String 
 get_hash_string c = case c of 
