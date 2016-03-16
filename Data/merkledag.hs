@@ -1,7 +1,7 @@
 import Data.Attoparsec.ByteString as A
-import Data.ByteString as B
+import qualified Data.ByteString.Char8 as B
 import Data.Word
-import Data.Map.Strict as M 
+import qualified Data.Map.Strict as M 
 
 
 
@@ -19,7 +19,10 @@ data MDagNode = MDagNode {
 ----- Basic Interface -----
 
 ipld_get_node :: IPFS_Simple -> B.ByteString -> Maybe MDagNode
-ipld_get_node w t = resolve_link w (B.split '/' t) 
+ipld_get_node w t = let b = (B.split '/' t)
+                    in case follow_link w (head b) of 
+		                Just n -> resolve_link w n (tail b) 
+		                Nothing -> Nothing
 
 
 -- Given a node and a remaining path traversal, return the node at the end of the line
