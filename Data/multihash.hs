@@ -66,6 +66,7 @@ get_hash_string c = case c of
 	0x14 -> "sha3"
 	0x40 -> "blake2b"
 	0x41 -> "blake2s"
+	_ -> "sha1" -- placeholder
 
 get_hash_code :: String -> Word8
 get_hash_code s = case s of 
